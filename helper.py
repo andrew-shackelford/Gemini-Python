@@ -13,6 +13,7 @@ class Gemini_Helper:
         self.prices = {}
         self.portfolio = {}
         self.totals = {}
+        self.load_max_prices()
         self.update_all()
 
     def load_key(self):
@@ -20,6 +21,14 @@ class Gemini_Helper:
             key_dict = json.load(f)
         self.api_key = key_dict['key']
         self.api_secret = key_dict['secret']
+
+    def load_max_prices(self):
+        with open('max_prices.json', 'rb') as f:
+            self.max_prices = json.load(f)
+
+    def update_max_prices(self):
+        with open('max_prices.json', 'wb') as f:
+            json.dump(self.max_prices, f)
 
     def update_price(self, coin_url):
         base_url = "https://api.gemini.com/v1/pubticker"
@@ -30,7 +39,13 @@ class Gemini_Helper:
 
     def update_prices(self):
         self.prices['BTC'] = self.update_price("/btcusd")
+        if self.prices['BTC'] > self.max_prices['BTC']:
+            self.max_prices['BTC'] = self.prices['BTC']
+            self.update_max_prices()
         self.prices['ETH'] = self.update_price("/ethusd")
+        if self.prices['ETH'] > self.max_prices['ETH']:
+            self.max_prices['ETH'] = self.prices['ETH']
+            self.update_max_prices()
 
     def update_portfolio(self):
         # define request
@@ -117,4 +132,7 @@ class Gemini_Helper:
         print("This is what happened:")
         print(response_dict)
         return response_dict
+
+    def sell_all(self, coin):
+        return self.sell(coin, self.portfolio[coin], 9999.99)
 
