@@ -16,8 +16,8 @@ def print_status(amount, type, price, total):
 def print_sell_status():
     bitcoin_percentage = helper.prices['BTC']/ helper.max_prices['BTC']
     ethereum_percentage = helper.prices['ETH'] / helper.max_prices['ETH']
-    print("Bitcoin is at " + str(round(bitcoin_percentage * 100, 2)) + " compared to our max percentage of " + str(MAX_PRICE_SELL_PERCENTAGE * 100))
-    print("Ethereum is at " + str(round(ethereum_percentage * 100, 2)) + " compared to our max percentage of " + str(MAX_PRICE_SELL_PERCENTAGE * 100))
+    print("Bitcoin is at " + str(round(bitcoin_percentage * 100, 2)) + "% compared to our max percentage of " + str(MAX_PRICE_SELL_PERCENTAGE * 100) + "%")
+    print("Ethereum is at " + str(round(ethereum_percentage * 100, 2)) + "% compared to our max percentage of " + str(MAX_PRICE_SELL_PERCENTAGE * 100) + "%")
 
     bitcoin_would_sell = str(round(max(MAX_PRICE_SELL_PERCENTAGE*helper.max_prices['BTC'], BITCOIN_SELL_PRICE), 2))
     ethereum_would_sell = str(round(max(MAX_PRICE_SELL_PERCENTAGE*helper.max_prices['ETH'], ETHEREUM_SELL_PRICE), 2))

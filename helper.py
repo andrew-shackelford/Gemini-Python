@@ -134,5 +134,5 @@ class Gemini_Helper:
         return response_dict
 
     def sell_all(self, coin):
-        return self.sell(coin, self.portfolio[coin], 9999.99)
+        return self.sell(coin, self.portfolio[coin], 9.99)
 
