@@ -51,25 +51,25 @@ def check_sell_status():
     """
     bitcoin_percentage = helper.prices['BTC']/ helper.max_prices['BTC']
     ethereum_percentage = helper.prices['ETH'] / helper.max_prices['ETH']
-    if helper.prices['BTC'] < BITCOIN_SELL_PRICE:
+    if helper.prices['BTC'] < BITCOIN_SELL_PRICE and helper.portfolio['BTC'] > 0:
         sell_str = "The price of bitcoin dropped below our sell price of $" + str(BITCOIN_SELL_PRICE) + ", so we sold everything."
         print(sell_str)
         send_text(False, sell_str)
         result = helper.sell_all('BTC')
         send_text(False, str(result))
-    if helper.prices['ETH'] < ETHEREUM_SELL_PRICE:
+    if helper.prices['ETH'] < ETHEREUM_SELL_PRICE and helper.portfolio['ETH'] > 0:
         sell_str = "The price of ethereum dropped below our sell price of $" + str(ETHEREUM_SELL_PRICE) + ", so we sold everything."
         print(sell_str)
         send_text(False, sell_str)
         result = helper.sell_all('ETH')
         send_text(False, str(result))
-    if bitcoin_percentage < MAX_PRICE_SELL_PERCENTAGE:
+    if bitcoin_percentage < MAX_PRICE_SELL_PERCENTAGE and helper.portfolio['BTC'] > 0:
         sell_str = "The price of bitcoin dropped below our sell percentage of " + str(MAX_PRICE_SELL_PERCENTAGE * 100) + "%, so we sold everything."
         print(sell_str)
         send_text(False, sell_str)
         result = helper.sell_all('BTC')
         send_text(False, str(result))
-    if  ethereum_percentage < MAX_PRICE_SELL_PERCENTAGE:
+    if  ethereum_percentage < MAX_PRICE_SELL_PERCENTAGE and helper.portfolio['ETH'] > 0:
         sell_str = "The price of ethereum dropped below our sell percentage of " + str(MAX_PRICE_SELL_PERCENTAGE * 100) + "%, so we sold everything."
         print(sell_str)
         send_text(False, sell_str)
