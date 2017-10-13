@@ -56,7 +56,7 @@ class Gemini_Helper:
             }
         response = requests.request("POST", url, headers=headers)
 
-        # put response into dictionary
+        # put response into array
         response_arr = json.loads(response.text)
         for item in response_arr:
             self.portfolio[item['currency']] = float(item['amount'])
@@ -70,3 +70,51 @@ class Gemini_Helper:
         self.update_prices()
         self.update_portfolio()
         self.calculate_prices()
+
+    def sell(self, coin, amount, price):
+        # define request
+        url = "https://api.gemini.com/v1/order/new"
+        request_str = "/v1/order/new"
+        nonce = str(int(round(time.time() * 1000)))
+        amount_str = str(amount)
+        price_str = str(price)
+        coin_str = ""
+        if coin == 'BTC':
+            coin_str = "btcusd"
+        elif coin == 'ETH':
+            coin_str = "ethusd"
+        else:
+            print("something went wrong")
+
+        # wrap up request and encrypt
+        request_dict = {'request' : request_str,
+                        'nonce' : nonce,
+                        'symbol' : coin_str,
+                        'amount' : amount_str,
+                        'price' : price_str,
+                        'side' : 'sell',
+                        'type' : 'exchange limit',
+                        'options' : ['immediate-or-cancel']
+                        }
+        request_json = json.dumps(request_dict)
+        b64 = base64.b64encode(request_json)
+        signature = hmac.new(str(self.api_secret), str(b64), hashlib.sha384).hexdigest()
+
+        # define http headers and perform request
+        headers = {
+            'Content-Type': "text/plain",
+            'Content-Length': "0",
+            'X-GEMINI-APIKEY': self.api_key,
+            'X-GEMINI-PAYLOAD': b64,
+            'X-GEMINI-SIGNATURE': signature,
+            'Cache-Control': "no-cache"
+            }
+        response = requests.request("POST", url, headers=headers)
+
+        # put response into dictionary
+        response_dict = json.loads(response.text)
+        print("We just attempted to sell " + str(amount) + " of " + coin + " at " + price_str)
+        print("This is what happened:")
+        print(response_dict)
+        return response_dict
+

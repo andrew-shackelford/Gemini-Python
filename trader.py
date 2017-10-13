@@ -15,19 +15,25 @@ def loop():
     print_status(helper.portfolio['ETH'], "ethereum", helper.prices['ETH'], helper.totals['ETH'])
     print("")
 
-def send_text():
+def send_text(check_text_sent=True, message="Something went wrong on the trading script. You should probably check it out."):
     global text_sent
     # we don't want to spam my Twilio account and run out of money - one text will do
-    if not text_sent:
+    if not text_sent or not check_text_sent:
     	with open('twilio.json', 'rb') as f:
     		twilio_dict = json.load(f)
         client = TwilioRestClient(twilio_dict['sid'], twilio_dict['token'])
         message = client.messages.create(
 		    to=twilio_dict['to_number'], 
 		    from_=twilio_dict['from_number'],
-		    body="Something went wrong on the trading script. You should probably check it out.")
+		    body=message)
         print(message.sid)
         text_sent = True
+
+
+def sell_test():
+    global helper
+    helper.sell('BTC', '0.00001', '9999.99')
+    helper.sell('ETH', '0.001', '9999.99')
 
 def main():
     global text_sent
