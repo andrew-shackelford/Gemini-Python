@@ -19,10 +19,15 @@ def print_sell_status():
     print("Bitcoin is at " + str(round(bitcoin_percentage * 100, 2)) + " compared to our max percentage of " + str(MAX_PRICE_SELL_PERCENTAGE * 100))
     print("Ethereum is at " + str(round(ethereum_percentage * 100, 2)) + " compared to our max percentage of " + str(MAX_PRICE_SELL_PERCENTAGE * 100))
 
-def send_text(check_text_sent=True, message="Something went wrong on the trading script. You should probably check it out."):
+    bitcoin_would_sell = str(round(max(MAX_PRICE_SELL_PERCENTAGE*helper.max_prices['BTC'], BITCOIN_SELL_PRICE), 2))
+    ethereum_would_sell = str(round(max(MAX_PRICE_SELL_PERCENTAGE*helper.max_prices['ETH'], ETHEREUM_SELL_PRICE), 2))
+    print("Bitcoin would sell at $" + bitcoin_would_sell + " but it is currently at $" + str(round(helper.prices['BTC'], 2)))
+    print("Ethereum would sell at $" + ethereum_would_sell + " but it is currently at $" + str(round(helper.prices['ETH'], 2)))
+
+def send_text(honor_text_sent=True, message="Something went wrong on the trading script. You should probably check it out."):
     global text_sent
     # we don't want to spam my Twilio account and run out of money - one text will do
-    if not text_sent or not check_text_sent:
+    if not text_sent or not honor_text_sent:
     	with open('twilio.json', 'rb') as f:
     		twilio_dict = json.load(f)
         client = TwilioRestClient(twilio_dict['sid'], twilio_dict['token'])
@@ -93,11 +98,16 @@ def main():
     global helper
     text_sent = False
     helper = Gemini_Helper()
+    last_status_text_sent = time.time()
+    FOUR_HOURS = 60*60*4
 
     while True:
         try:
             loop()
             text_sent = False
+            if time.time() - last_status_text_sent > FOUR_HOURS:
+            	send_text(False, "All good here! Bitcoin trading script is up and running.")
+            	last_status_text_sent = time.time()
             time.sleep(10)
         except KeyboardInterrupt:
         	raise
