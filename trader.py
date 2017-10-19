@@ -28,15 +28,21 @@ def send_text(honor_text_sent=True, message="Something went wrong on the trading
     global text_sent
     # we don't want to spam my Twilio account and run out of money - one text will do
     if not text_sent or not honor_text_sent:
-    	with open('twilio.json', 'rb') as f:
-    		twilio_dict = json.load(f)
-        client = TwilioRestClient(twilio_dict['sid'], twilio_dict['token'])
-        message = client.messages.create(
-		    to=twilio_dict['to_number'], 
-		    from_=twilio_dict['from_number'],
-		    body=message)
-        print(message.sid)
-        text_sent = True
+        try:
+            with open('twilio.json', 'rb') as f:
+                twilio_dict = json.load(f)
+            client = TwilioRestClient(twilio_dict['sid'], twilio_dict['token'])
+        except:
+            print("Client failed to load")
+        try:
+            message = client.messages.create(
+                to=twilio_dict['to_number'], 
+                from_=twilio_dict['from_number'],
+                body=message)
+            print(message.sid)
+            text_sent = True
+        except:
+            print("Message failed to send")
 
 def sell_test():
     global helper
@@ -104,13 +110,15 @@ def main():
     while True:
         try:
             loop()
-            text_sent = False
+            if text_sent:
+                send_text(False, "And we're back up! Whatever went wrong is fixed.")
             if time.time() - last_status_text_sent > FOUR_HOURS:
-            	send_text(False, "All good here! Bitcoin trading script is up and running.")
-            	last_status_text_sent = time.time()
+                send_text(False, "All good here! Bitcoin trading script is up and running.")
+                last_status_text_sent = time.time()
+            text_sent = False
             time.sleep(10)
         except KeyboardInterrupt:
-        	raise
+            raise
         except:
             """
             we really do not want this to fail and stop running,
