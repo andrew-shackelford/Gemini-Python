@@ -5,7 +5,7 @@ import time
 import datetime
 
 MAX_PRICE_SELL_PERCENTAGE = 0.95
-BITCOIN_SELL_PRICE = 5000
+BITCOIN_SELL_PRICE = 5600
 ETHEREUM_SELL_PRICE = 250
 
 def print_status(amount, type, price, total):
@@ -40,9 +40,21 @@ def send_text(honor_text_sent=True, message="Something went wrong on the trading
                 from_=twilio_dict['from_number'],
                 body=message)
             print(message.sid)
-            text_sent = True
+            text_sent = honor_text_sent
         except:
             print("Message failed to send")
+
+def send_status(coin):
+    if coin == 'BTC':
+        price_str = "You have " + str(helper.portfolio['BTC']) + " bitcoin at $" + str(helper.prices['BTC']) + " per bitcoin for a total of $" + str(round(helper.totals['BTC'], 2))
+        sell_str = "It will sell at $" + str(round(max(MAX_PRICE_SELL_PERCENTAGE*helper.max_prices['BTC'], BITCOIN_SELL_PRICE), 2))
+        text_str = price_str + ". " + sell_str + "."
+        send_text(False, text_str)
+    elif coin == 'ETH':
+        price_str = "You have " + str(helper.portfolio['ETH']) + " ethereum at $" + str(helper.prices['ETH']) + " per ethereum for a total of $" + str(round(helper.totals['ETH'], 2))
+        sell_str = "It will sell at $" + str(round(max(MAX_PRICE_SELL_PERCENTAGE*helper.max_prices['ETH'], ETHEREUM_SELL_PRICE), 2))
+        text_str = price_str + ". " + sell_str + "."
+        send_text(False, text_str)
 
 def sell_test():
     global helper
@@ -114,6 +126,10 @@ def main():
                 send_text(False, "And we're back up! Whatever went wrong is fixed.")
             if time.time() - last_status_text_sent > FOUR_HOURS:
                 send_text(False, "All good here! Bitcoin trading script is up and running.")
+                if helper.portfolio['BTC'] > 0:
+                    send_status('BTC')
+                if helper.portfolio['ETH'] > 0:
+                    send_status('ETH')
                 last_status_text_sent = time.time()
             text_sent = False
             time.sleep(10)
